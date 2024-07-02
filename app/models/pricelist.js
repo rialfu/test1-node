@@ -6,7 +6,8 @@ module.exports = (sequelize, Sequelize) => {
             primaryKey: true
         },
         code: {
-            type: Sequelize.STRING
+            type: Sequelize.STRING(10),
+            unique:true
         },
         price:{
             type:Sequelize.INTEGER,

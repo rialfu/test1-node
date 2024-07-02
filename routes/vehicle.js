@@ -7,9 +7,9 @@ router.get('/', verifyToken, is_admin , (req, res)=>{
     res.json({'message':'vehicle'})
 })
 router.get('/pricelist', carsController.getPriceList)
-// router.post('/pricelist')
-// router.put('/pricelist/update')
-// router.delete('/pricelist/delete')
+router.post('/pricelist', carsController.insertPrice)
+router.patch('/pricelist/:code', carsController.updatePrice)
+router.delete('/pricelist/:code', carsController.deletePrice)
 
 router.get('/model', carsController.getModelList)
 router.post('/model/:type_id', verifyToken, is_admin, carsController.insertModel)
