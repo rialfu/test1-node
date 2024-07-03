@@ -3,7 +3,7 @@ dotenv.config();
 
 const variableGlobal ={
     database:{
-        name_db : process.env.db || 'test_kendaraan',
+        name_db : process.env.name_db || 'test_kendaraan',
         user    : process.env.user || 'root',
         pass    : process.env.pass_db || '',
         port    : process.env.port_db || '3306',

@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const Sequelize = require("sequelize");
+// const {PostgresDialect} = require('@sequelize/postgres')
 const sequelize = new Sequelize(variableGlobal.database.name_db, variableGlobal.database.user, variableGlobal.database.pass, {
     host: variableGlobal.database.host,
     port:variableGlobal.database.port,
