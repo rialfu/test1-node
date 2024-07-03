@@ -30,8 +30,8 @@ async function login(req, res){
             if(resCompare == false){
                 throw 'error custom1'    
             }
-            const options = { expiresIn: '5m' };
-            const options2 = { expiresIn: '30m' };
+            const options = { expiresIn: '60m' };
+            const options2 = { expiresIn: '24h' };
             result['pass'] =''
             const resjwt = jwt.sign({'result':result}, process.env.keypass || "12345", options);
             const resRefresh =jwt.sign({'result':result},  "12346", options2)

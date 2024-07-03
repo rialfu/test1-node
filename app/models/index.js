@@ -1,11 +1,13 @@
-// const dbConfig = require("../config/db.config.js");
+const { variableGlobal } = require('../../variable.js')
 const dotenv = require('dotenv');
 dotenv.config();
+
 const Sequelize = require("sequelize");
-const sequelize = new Sequelize(process.env.db, process.env.user || 'root', process.env.pass, {
-    host: process.env.hostdb || '127.0.0.1',
-    port:process.env.portdb || 3306,
-    dialect: process.env.typedb || 'mysql'
+const sequelize = new Sequelize(variableGlobal.database.name_db, variableGlobal.database.user, variableGlobal.database.pass, {
+    host: variableGlobal.database.host,
+    port:variableGlobal.database.port,
+    dialect: variableGlobal.database.type_db,
+    logging:false,
     
 });
 

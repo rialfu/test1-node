@@ -1,11 +1,26 @@
 const db = require('../models')
 const {Op, and} = require("sequelize");
-const priceList = db.pricelist
 const {  validationResult } = require('express-validator');
 
 async function getPriceList(req, res){
-    
+    const includes = {
+        include:[
+            {
+                model:db.vehicleYear
+            },{
+                model:db.vehicleModel,
+                include:{
+                    model:db.vehicleType
+                }
+            }
+        ]
+    } 
     try{
+        if(req.query.id != null){
+            const id = req.query.id
+            const find = await db.pricelist.findOne({where:{id}, ...includes})
+            return res.status(200).json({'result':find})
+        }
         let page = req.query.page
         if (page ==null){
             page = 1
@@ -37,20 +52,11 @@ async function getPriceList(req, res){
             whereQuery['price'] = {[Op.lt]:parseInt(priceLess)}
         }
         let offset = 0 + (page - 1) * limit;
-        const result = await priceList.findAndCountAll({
+        const result = await db.pricelist.findAndCountAll({
             where: whereQuery,
             offset: offset,
             limit: limit,
-            include:[
-                {
-                    model:db.vehicleYear
-                },{
-                    model:db.vehicleModel,
-                    include:{
-                        model:db.vehicleType
-                    }
-                }
-            ]
+            ...includes
         });
         res.status(200).json(result)
     }catch(err){
@@ -124,7 +130,11 @@ async function deletePrice(req, res){
 
 async function getBrandList(req, res){
     try{
-
+        if(req.query.id != null){
+            const id = req.query.id
+            const find = await db.vehicleBrand.findOne({where:{id}})
+            return res.status(200).json({'result':find})
+        }
         let page = req.query.page
         if (page ==null){
             page = 1
@@ -221,6 +231,11 @@ async function deleteBrand(req, res){
 
 async function getTypeList(req, res){
     try{
+        if(req.query.id != null){
+            const id = req.query.id
+            const find = await db.vehicleType.findOne({where:{id}})
+            return res.status(200).json({'result':find})
+        }
         let page = req.query.page
         if (page ==null){
             page = 1
@@ -264,7 +279,7 @@ async function insertType(req, res){
         }
         await db.vehicleType.create({
             name:req.body['name'],
-            brand_id:req.params['brand_id']
+            brand_id:req.body['brand_id']
         })
         res.status(200).json({'message':'success'})
     }catch(err){
@@ -283,9 +298,6 @@ async function updateType(req, res){
             return    
         }
         await find.update({name:req.body['name']})
-        // await db.vehicleBrand.create({
-        //     name:req.body['name']
-        // })
         res.status(200).json({'message':'success'})
     }catch(err){
         res.status(500).json({'messsage':'something is wrong', 'error':err})
@@ -321,6 +333,11 @@ async function deleteType(req, res){
 
 async function getModelList(req, res){
     try{
+        if(req.query.id != null){
+            const id = req.query.id
+            const find = await db.vehicleModel.findOne({where:{id}})
+            return res.status(200).json({'result':find})
+        }
         let page = req.query.page
         if (page ==null){
             page = 1
@@ -370,7 +387,7 @@ async function insertModel(req, res){
         }
         await db.vehicleModel.create({
             name:req.body['name'],
-            type_id:req.params['type_id']
+            type_id:req.body['type_id']
         })
         res.status(200).json({'message':'success'})
     }catch(err){
@@ -419,12 +436,112 @@ async function deleteModel(req, res){
             return    
         }
         await find.destroy()
-        res.status(200).json({'message':'success', 'result':find})
+        res.status(200).json({'message':'success'})
     }catch(err){
         res.status(500).json({'messsage':'something is wrong', 'error':err})
     }
 }
 
+
+async function getYearList(req, res){
+    try{
+        if(req.query.id != null){
+            const id = req.query.id
+            const find = await db.vehicleYear.findOne({where:{id}})
+            return res.status(200).json({'result':find})
+        }
+        let page = req.query.page
+        if (page ==null){
+            page = 1
+        }else{
+            page = parseInt(page)
+        }
+        let limit = req.query.limit
+        if( limit == null || limit > 50){
+            limit = 10
+        }else{
+            limit = parseInt(limit)
+        }
+        let name = req.query.name
+        whereQuery = {}
+        if(name != null){
+            whereQuery['name'] ={
+                [Op.like]: `%${name}%`
+                
+            }
+        }
+        let offset = 0 + (page - 1) * limit;
+        
+        const result =  await db.vehicleYear.findAndCountAll({
+            where: whereQuery,
+            offset: offset,
+            limit: limit,
+        });
+        res.status(200).json({'result':result})
+        
+    }catch(err){
+        res.status(500).json({'messsage':'something is wrong', 'error':err})
+    }
+}
+
+async function insertYear(req, res){
+    try{
+        const result = validationResult(req);
+        if(!result.isEmpty()){
+            return res.status(403).json({err:result.array()})
+        }
+        await db.vehicleYear.create({
+            year:req.body['year'],
+        })
+        res.status(200).json({'message':'success'})
+    }catch(err){
+        res.status(500).json({'messsage':'something is wrong', 'error':err})
+    }
+}
+async function updateYear(req, res){
+    try{
+        const result = validationResult(req);
+        if(!result.isEmpty()){
+            return res.status(403).json({err:result.array()})
+        }
+        const find = await db.vehicleYear.findOne({where:{id:req.params['id']}})
+        if(find == null){
+            res.status(404).json({'messsage':'something is wrong', 'error':'not found'})
+            return    
+        }
+        await find.update({year:req.body['year']})
+        // await db.vehicleBrand.create({
+        //     name:req.body['name']
+        // })
+        res.status(200).json({'message':'success'})
+    }catch(err){
+        res.status(500).json({'messsage':'something is wrong', 'error':err})
+    }
+}
+async function deleteYear(req, res){
+    try{
+        const find = await db.vehicleYear.findOne(
+            {
+                where:{id:req.params['id']},
+                include:[
+                    {
+                        model:db.pricelist,
+                        limit:10,
+                    }
+                ]
+            }
+        )
+        if(find == null){
+            res.status(404).json({'messsage':'something is wrong', 'error':'not found'})
+            return    
+        }
+        
+        await find.destroy()
+        res.status(200).json({'message':'success'})
+    }catch(err){
+        res.status(500).json({'messsage':'something is wrong', 'error':err})
+    }
+}
 module.exports={
     getPriceList,
     insertPrice,
@@ -444,5 +561,10 @@ module.exports={
     getModelList,
     insertModel,
     updateModel,
-    deleteModel
+    deleteModel,
+
+    getYearList,
+    insertYear,
+    updateYear,
+    deleteYear,
 }

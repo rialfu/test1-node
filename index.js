@@ -5,9 +5,10 @@ const db = require('./app/models')
 const vehicleRoute = require('./routes/vehicle')
 const userRoute =require('./routes/user')
 const {run}= require('./migration')
+const {variableGlobal} = require('./variable')
 db.sequelize.sync({ force: true })
 .then(() => {
-    if(process.env.migration == 'true' || false){
+    if(variableGlobal.migration || false){
         run(db)
     }
     console.log("Synced db.");
@@ -26,6 +27,6 @@ app.get('/', (req, res)=>{
 app.use('/vehicle', vehicleRoute)
 app.use('/user',userRoute)
 
-app.listen(port, () => {
+app.listen(variableGlobal.port, () => {
   console.log(`Example app listening on port ${port}`)
 })
