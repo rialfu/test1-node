@@ -1,0 +1,56 @@
+1. SELECT * FROM `students` join classes on classes.id = students.class_id join teachers on teachers.id=classes.teacher_id;
+2. 
+SELECT t.name AS teacher_name, c1.name AS class1, c2.name AS class2
+FROM classes c1
+JOIN classes c2 ON c1.teacher_id = c2.teacher_id AND c1.id <> c2.id
+JOIN teachers t ON c1.teacher_id = t.id
+ORDER BY t.name, c1.name, c2.name;
+
+3. CREATE VIEW class_teachers_students AS
+SELECT s.name AS student_name, s.age, c.name AS class_name, t.name AS teacher_name, t.subject
+FROM students s
+INNER JOIN classes c ON s.class_id = c.id
+INNER JOIN teachers t ON c.teacher_id = t.id;
+
+4. 
+DELIMITER $$
+CREATE PROCEDURE get_class_teachers_students()
+BEGIN
+    SELECT s.name AS student_name, s.age, c.name AS class_name, t.name AS teacher_name, t.subject
+    FROM students s
+    INNER JOIN classes c ON s.class_id = c.id
+    INNER JOIN teachers t ON c.teacher_id = t.id;
+END$$
+delimiter ;
+
+5
+pertama membuat procedure insert untuk salah satu table
+DELIMITER $$
+CREATE PROCEDURE InsertTeacher(
+    IN teacher_name VARCHAR(100),
+    IN teacher_subject VARCHAR(50)
+)
+
+BEGIN
+    DECLARE duplicate_found INT DEFAULT 0;
+
+    SELECT COUNT(*) INTO duplicate_found
+    FROM teachers
+    WHERE name = teacher_name AND subject = teacher_subject;
+
+    IF duplicate_found = 0 THEN
+        INSERT INTO teachers (name, subject)
+        VALUES (teacher_name, teacher_subject);
+        SELECT 'Teacher inserted successfully.' AS message;
+    ELSE
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Duplikat';
+    END IF;
+END$$
+
+DELIMITER ;
+
+kemudian menggunakan procedure tersebut
+call InsertTeacher('Pak Anton', 'Matematika')
+
+
